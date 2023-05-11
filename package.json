@@ -1,0 +1,15 @@
+{
+  "name": "csp-utils",
+  "version": "1.0.0",
+  "description": "A simple typescript library that can be used to solve constraint satisfaction problems.",
+  "type": "module",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "bash tests/run-tests.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

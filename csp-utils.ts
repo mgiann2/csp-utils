@@ -1,4 +1,4 @@
-class Variable 
+export class Variable 
 {
     name: string
     domain: string[]
@@ -13,20 +13,21 @@ class Variable
     }
 }
 
-class Constraint 
+export class Constraint 
 {
     name: string
     scope: Variable[]
     constraint_func: (vars: Variable[]) => boolean
 
-    constructor(scope :Variable[], constraint_func: (vars: Variable[]) => boolean)
+    constructor(name:string, scope :Variable[], constraint_func: (vars: Variable[]) => boolean)
     {
+        this.name = name
         this.scope = [...scope]
         this.constraint_func = constraint_func
     }
 }
 
-class CSP 
+export class CSP 
 {
     name: string
     variables: Variable[]
