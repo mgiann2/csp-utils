@@ -75,13 +75,13 @@ export class Constraint
 {
     name: string
     scope: Variable[]
-    constraint_func: (vars: Variable[]) => boolean
+    constraintFunc: (vars: Variable[]) => boolean
 
-    constructor(name:string, scope :Variable[], constraint_func: (vars: Variable[]) => boolean)
+    constructor(name:string, scope :Variable[], constraintFunc: (vars: Variable[]) => boolean)
     {
         this.name = name
         this.scope = [...scope]
-        this.constraint_func = constraint_func
+        this.constraintFunc = constraintFunc
     }
 
     /**
@@ -98,6 +98,17 @@ export class Constraint
             }
         }
         return true
+    }
+
+    /**
+     * This function determines whether the current assignments to the
+     * variables in the scope satisfy the constraint.
+     * @returns whether the variables satisfy this constraint
+     */
+    isSatisfied(): boolean 
+    {
+        if (!this.allVarsAssigned()) {return false}
+        return this.constraintFunc(this.scope)
     }
 }
 
