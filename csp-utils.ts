@@ -1,3 +1,8 @@
+/**
+ * This class represents a variable in a constraint satisfaction
+ * problem. Each variable has a domain of values that it can be 
+ * assigned to. 
+ */
 export class Variable 
 {
     name: string
@@ -12,18 +17,26 @@ export class Variable
         this.curr_domain = new Array(domain.length).fill(true)
     }
 
+    /**
+     * This function returns true if the variable has been assigned and
+     * false otherwise.
+     * @returns whether the variable has been assigned a value
+     */
     isAssigned(): boolean
     {
         return this.assigned_val !== null
     }
 
+    /**
+     * This function assigns a variable to the given value. This function
+     * will do nothing if the value provided is not in the domain. If the
+     * variable is already assigned then this function will assign the variable
+     * to the new value.
+     * @param value the value that the variable will be assigned to
+     */
     assignValue(value: string): void 
     {
-        if (this.isAssigned())
-        {
-            console.log("ERROR: Variable " + this.name + " is already assigned.")
-        } 
-        else if (this.domain.includes(value)) 
+        if (this.domain.includes(value)) 
         {
             this.assigned_val = value
         }
@@ -33,6 +46,10 @@ export class Variable
         }
     }
 
+    /**
+     * This function unassigns a value to the variable. If the variable
+     * is already unassigned then the function will do nothing.
+     */
     unassignValue(): void
     {
         if (this.isAssigned())
@@ -46,6 +63,14 @@ export class Variable
     }
 }
 
+/**
+ * This class represents a constraint in a constraint satisfaction problem.
+ * Each constraint has a scope of variables that it operates on. Furthermore,
+ * each constraint has a function that uses the variables in it's scope and 
+ * determines if the assigned values satisfy the constraint. IMPORTANT: the
+ * order of variables in the scope are used to identify variables for the 
+ * constraint function.
+ */
 export class Constraint 
 {
     name: string
@@ -58,8 +83,29 @@ export class Constraint
         this.scope = [...scope]
         this.constraint_func = constraint_func
     }
+
+    /**
+     * This function checks if all variables in the scope are assigned.
+     * @returns whether all the variables in the scope are assigned
+     */
+    allVarsAssigned(): boolean 
+    {
+        for(let i=0; i < this.scope.length; i++) 
+        {
+            if(!this.scope[i].isAssigned())
+            {
+                return false
+            }
+        }
+        return true
+    }
 }
 
+/**
+ * This class represents a constraint satisfaction problem (CSP). Each CSP
+ * has a set of variables and a set of constraints defining it. This class provides
+ * a way to define and solve CSPs.
+ */
 export class CSP 
 {
     name: string
@@ -69,5 +115,32 @@ export class CSP
     constructor(name: string)
     {
         this.name = name
+    }
+
+    /**
+     * Solves the CSP by assigning a value to each variable such that each
+     * constraint is satisfied. The CSP is solved using backtracking search.
+     * The function returns true if the CSP is solved. false is returned if 
+     * the CSP is unsatisfiable.
+     * @returns a boolean representing if the CSP was able to be solved
+     */
+    backtrackSolve(): boolean
+    {
+        // TODO
+        return false
+    }
+
+    /**
+     * Solves the CSP by assigning a value to each variable such that each
+     * constraint is satisfied. The CSP is solved using backtracking search
+     * with GAC-based pruning for better performance.
+     * The function returns true if the CSP is solved. false is returned if 
+     * the CSP is unsatisfiable.
+     * @returns a boolean representing if the CSP was able to be solved
+     */
+    GACSolve(): boolean
+    {
+        // TODO
+        return false
     }
 }
