@@ -120,12 +120,49 @@ export class Constraint
 export class CSP 
 {
     name: string
-    variables: Variable[]
-    constraints: Constraint[]
+    variables: Variable[] = []
+    constraints: Constraint[] = []
 
-    constructor(name: string)
+    constructor(name: string, constraints: Constraint[])
     {
         this.name = name
+        for(let i = 0; i < constraints.length; i++)
+        {
+            this.addConstraint(constraints[i])
+        }
+    }
+
+    /**
+     * Adds a new constraint to the CSP. Any variables in the
+     * constraint will be added to variables if not already in the list.
+     * @param c the new constraint to be added
+     */
+    private addConstraint(c: Constraint): void
+    {
+        for(let i = 0; i < c.scope.length; i++)
+        {
+            if(!this.variables.includes(c.scope[i]))
+            {
+                this.variables.push(c.scope[i])
+            }
+        }
+        this.constraints.push(c)
+    }
+
+    /**
+     * This function checks if all variables in the scope are assigned.
+     * @returns whether all the variables in the scope are assigned
+     */
+    allVarsAssigned(): boolean 
+    {
+        for(let i=0; i < this.variables.length; i++) 
+        {
+            if(!this.variables[i].isAssigned())
+            {
+                return false
+            }
+        }
+        return true
     }
 
     /**
