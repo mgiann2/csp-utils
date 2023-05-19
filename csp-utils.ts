@@ -61,6 +61,14 @@ export class Variable
             console.log("ERROR: Variable has not been assigned")
         }
     }
+
+    /**
+     * @returns the size of the current domain
+     */
+    currDomSize(): number
+    {
+        return this.curr_domain.filter(x => x).length
+    }
 }
 
 /**
@@ -137,7 +145,7 @@ export class CSP
      * constraint will be added to variables if not already in the list.
      * @param c the new constraint to be added
      */
-    private addConstraint(c: Constraint): void
+    protected addConstraint(c: Constraint): void
     {
         for(let i = 0; i < c.scope.length; i++)
         {
@@ -163,6 +171,30 @@ export class CSP
             }
         }
         return true
+    }
+
+    /**
+     * Picks an unassigned variable to be used when solving the CSP.
+     * The variable with the smallest current domain is chosen. 
+     */
+    protected pickVariable(): Variable
+    {
+        let v = null
+        for(let i = 0; i < this.variables.length; i++)
+        {
+            if(!this.variables[i].isAssigned())
+            {
+                if(v === null)
+                {
+                    v = this.variables[i]
+                }
+                else if (this.variables[i].currDomSize() < v.currDomSize())
+                {
+                    v = this.variables[i]
+                }
+            }
+        }
+        return v
     }
 
     /**

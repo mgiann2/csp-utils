@@ -3,7 +3,8 @@ import { Variable } from "../csp-utils.js"
 
 const tests = [
     testVariableCreation,
-    testIsAssigned
+    testIsAssigned,
+    testCurrDomSize
 ]
 
 function testVariableCreation(): boolean
@@ -27,6 +28,14 @@ function testIsAssigned(): boolean
     v.assigned_val = '1'
     if (!v.isAssigned()) {return false}
     return true
+}
+
+function testCurrDomSize(): boolean
+{
+    let v = new Variable("V1", ['1', '2', '3'])
+    v.curr_domain = [true, true, false]
+    if(v.currDomSize() === 2) {return true}
+    return false 
 }
 
 runTests("Variable Tests", tests)
