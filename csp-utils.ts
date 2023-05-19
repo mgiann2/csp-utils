@@ -69,6 +69,58 @@ export class Variable
     {
         return this.curr_domain.filter(x => x).length
     }
+
+    /**
+     * Removes a value from the current domain. If the value is not in the domain
+     * or current domain then nothing happens.
+     * @param value the value to remove from the current domain
+     */
+    pruneValue(value: string)
+    {
+        let index = this.domain.indexOf(value)
+        if(index !== -1)
+        {
+            this.curr_domain[index] = false
+        }
+    }
+
+    /**
+     * Restores a value from the current domain. If the value is not in the domain
+     * or is in the current domain then nothing happens.
+     * @param value the value to remove from the current domain
+     */
+    unpruneValue(value: string)
+    {
+        let index = this.domain.indexOf(value)
+        if(index !== -1)
+        {
+            this.curr_domain[index] = true
+        }
+    }
+
+    /**
+     * Puts all values in the domain into the current domain
+     */
+    unpruneAll()
+    {
+        this.curr_domain = this.curr_domain.map(x => true)
+    }
+
+    /**
+     * Checks whether a value is in the current domain. If the value is not
+     * in the domain then false is returned.
+     * @param value the value to be checked
+     * @returns whether the value is in the current domain
+     */
+    valueInCurrDom(value: string): boolean
+    {
+        let index = this.domain.indexOf(value)
+        if(index !== -1)
+        {
+            return this.curr_domain[index]
+        }
+        return false
+    }
 }
 
 /**
