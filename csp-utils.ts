@@ -258,8 +258,45 @@ export class CSP
      */
     backtrackSolve(): boolean
     {
-        // TODO
-        return false
+        function backtrackRecurse(csp: CSP)
+        {
+            if(csp.allVarsAssigned())
+            {
+                return true
+            }
+
+            let v = csp.pickVariable()
+            for(let i=0; i < v.domain.length; i++)
+            {
+                let d = v.domain[i]
+                v.assignValue(d)
+                let consSatisfied = true
+
+                for(let j=0; j < csp.constraints.length; j++)
+                {
+                    let c = csp.constraints[j]
+                    if(c.scope.includes(v) && c.allVarsAssigned())
+                    {
+                        if(!c.isSatisfied())
+                        {
+                            consSatisfied = false
+                        }
+                    }
+                }
+
+                if(consSatisfied)
+                {
+                    if(backtrackRecurse(csp))
+                    {
+                        return true
+                    }
+                }
+            }
+            v.unassignValue()
+            return false
+        }
+
+        return backtrackRecurse(this)
     }
 
     /**
