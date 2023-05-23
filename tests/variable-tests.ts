@@ -4,7 +4,8 @@ import { Variable } from "../csp-utils.js"
 const tests = [
     testVariableCreation,
     testIsAssigned,
-    testCurrDomSize
+    testCurrDomSize,
+    testInCurrDomain
 ]
 
 function testVariableCreation(): boolean
@@ -36,6 +37,16 @@ function testCurrDomSize(): boolean
     v.curr_domain = [true, true, false]
     if(v.currDomSize() === 2) {return true}
     return false 
+}
+
+function testInCurrDomain(): boolean
+{
+    let v = new Variable("V1", ['1', '2', '3'])
+    v.curr_domain = [true, true, false]
+    if(!v.valueInCurrDom('1')) {return false}
+    if(!v.valueInCurrDom('2')) {return false}
+    if(v.valueInCurrDom('3')) {return false}
+    return true
 }
 
 runTests("Variable Tests", tests)

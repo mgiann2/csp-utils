@@ -6,7 +6,10 @@ const tests = [
     testAllVarsAssignedTrue,
     testAllVarsAssignedFalse,
     testIsSatisfiedTrue,
-    testIsSatisfiedFalse
+    testIsSatisfiedFalse,
+    testIsSatisfiedParamTrue,
+    testHasSupportTrue,
+    testHasSupportFalse
 ]
 
 function testConstraintCreation(): boolean
@@ -109,6 +112,54 @@ function testIsSatisfiedFalse(): boolean
     v3.assignValue('2')
     let c = new Constraint(name, scope, allDiff)
     return !c.isSatisfied()
+}
+
+function testIsSatisfiedParamTrue(): boolean
+{
+    let name = "C1"
+    let domain = ['1', '2', '3']
+    let v1 = new Variable("V1", domain)
+    let v2 = new Variable("V2", domain)
+    let v3 = new Variable("V3", domain)
+    let scope = [v1, v2, v3]
+    let constraintFunc = (vars) => {
+        return true
+    }
+    v1.assignValue('1')
+    v2.assignValue('2')
+    v3.assignValue('3')
+    let c = new Constraint(name, scope, constraintFunc)
+    return c.isSatisfied(scope)
+}
+
+function testHasSupportTrue(): boolean
+{
+    let name = "C1"
+    let domain = ['1', '2', '3']
+    let v1 = new Variable("V1", domain)
+    let v2 = new Variable("V2", domain)
+    let v3 = new Variable("V3", domain)
+    let scope = [v1, v2, v3]
+    let constraintFunc = (vars: Variable[]) => {
+        return vars[0].assigned_val === '3' && vars[1].assigned_val === '2' && vars[2].assigned_val === '1'
+    }
+    let c = new Constraint(name, scope, constraintFunc)
+    return c.hasSupport(v1, '3')
+}
+
+function testHasSupportFalse(): boolean
+{
+    let name = "C1"
+    let domain = ['1', '2', '3']
+    let v1 = new Variable("V1", domain)
+    let v2 = new Variable("V2", domain)
+    let v3 = new Variable("V3", domain)
+    let scope = [v1, v2, v3]
+    let constraintFunc = (vars: Variable[]) => {
+        return vars[0].assigned_val === '3' && vars[1].assigned_val === '2' && vars[2].assigned_val === '1'
+    }
+    let c = new Constraint(name, scope, constraintFunc)
+    return !c.hasSupport(v1, '1')
 }
 
 runTests("Constraint Tests", tests)

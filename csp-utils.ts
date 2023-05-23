@@ -99,6 +99,24 @@ export class Variable
     }
 
     /**
+     * Prunes all values from the current domain except for the provided value.
+     * If the value does not exist in the domain, then calling this method will
+     * do nothing. 
+     * @param value the value to remain in the current domain
+     */
+    pruneAllExcept(value: string)
+    {
+        let vi = this.domain.indexOf(value)
+        if(vi !== -1)
+        {
+            for(let i = 0; i < this.curr_domain.length; i++)
+            {
+                this.curr_domain[i] = vi === i
+            }
+        }
+    }
+
+    /**
      * Puts all values in the domain into the current domain
      */
     unpruneAll()
@@ -120,6 +138,20 @@ export class Variable
             return this.curr_domain[index]
         }
         return false
+    }
+
+    /**
+     * This method will assign the variable to a value and 
+     * remove all other value from the domain. Use this method when
+     * initializing the CSP if you want the variable to be treated as
+     * a constant. If the value is not in the domain, then this method
+     * will do nothing.
+     * @param value the value to set the variable to
+     */
+    setConstant(value: string)
+    {
+        this.assignValue(value)
+        this.pruneAllExcept(value)
     }
 }
 
@@ -165,10 +197,92 @@ export class Constraint
      * variables in the scope satisfy the constraint.
      * @returns whether the variables satisfy this constraint
      */
-    isSatisfied(): boolean 
+    isSatisfied(vars?: Variable[]): boolean 
     {
+        if(typeof vars !== "undefined") {return this.constraintFunc(vars)}
         if (!this.allVarsAssigned()) {return false}
         return this.constraintFunc(this.scope)
+    }
+
+    hasSupport(v: Variable, d: string): boolean
+    {
+        function hasSupportRecurse(index: number): boolean
+        {
+            let v = scope[index]
+            if(index === scope.length - 1) // base case
+            {
+                if(v.isAssigned())
+                {
+                    return cons.isSatisfied(scope)
+                }
+                else
+                {
+                    for(let i = 0; i < v.domain.length; i++)
+                    {
+                        let d = v.domain[i]
+                        if(v.valueInCurrDom(d))
+                        {
+                            v.assignValue(d)
+                            if(cons.isSatisfied(scope))
+                            {
+                                return true
+                            }
+                        }
+                    }
+                    v.unassignValue()
+                    return false
+                }
+            }
+            else
+            {
+                if(v.isAssigned())
+                {
+                    return hasSupportRecurse(index+1)
+                }
+                else
+                {
+                    for(let i = 0; i < v.domain.length; i++)
+                    {
+                        let d = v.domain[i]
+                        if(v.valueInCurrDom(d))
+                        {
+                            v.assignValue(d)
+                            if(hasSupportRecurse(index+1))
+                            {
+                                return true
+                            }
+                        }
+                    }
+                    v.unassignValue()
+                    return false
+                }
+            }
+        }
+
+        let vi = this.scope.indexOf(v)
+        let scope = this.copyScope()
+        scope[vi].assignValue(d)
+        let cons = this
+
+        return hasSupportRecurse(0)
+    }
+
+    /**
+     * Creates a copy of the scope of the constraint.
+     * Changes made to the copied scope will not affect the variables
+     * in the scope of the constraint copied from.
+     * @returns a copy of the scope of the constraint    
+     */
+    copyScope(): Variable[]
+    {
+        let vars = []
+        this.scope.forEach(v => {
+            let newV = new Variable(v.name, v.domain)
+            newV.assigned_val = v.assigned_val
+            newV.curr_domain = v.curr_domain
+            vars.push(newV)
+        })
+        return vars
     }
 }
 
@@ -309,7 +423,94 @@ export class CSP
      */
     GACSolve(): boolean
     {
-        // TODO
-        return false
+        function GACRecurse(csp: CSP)
+        {
+            if(csp.allVarsAssigned())
+            {
+                return true
+            }
+
+            let v = csp.pickVariable()
+            
+            for(let i=0; i < v.domain.length; i++)
+            {
+                let d = v.domain[i]
+                if(v.valueInCurrDom(d))
+                {
+                    let prunes = new Map()
+                    prunes.set(v, [])
+                    v.assignValue(d)
+                    // prune all values other than currently assigned value
+                    for(let j=0; j < v.domain.length; j++)
+                    {
+                        if(i !== j && v.valueInCurrDom(v.domain[j]))
+                        {
+                            prunes.get(v).push(v.domain[j])
+                            v.pruneValue(v.domain[j])
+                        }
+                    }
+
+                    if(GACEnforce(prunes, csp.constraints))
+                    {
+                        if(GACRecurse(csp))
+                        {
+                            return true
+                        }
+                    }
+
+                    // Undo prunes
+                    let unpruneVars = prunes.keys()
+                    let unpruneVar = unpruneVars.next()
+                    while(!unpruneVar.done)
+                    {
+                        let prunedVals: string[] = prunes.get(unpruneVar.value)
+                        prunedVals.forEach(val => unpruneVar.value.unpruneValue(val))
+                        unpruneVar = unpruneVars.next()
+                    }
+                }
+            }
+            v.unassignValue()
+            return false
+        }
+
+        function GACEnforce(prunes: Map<Variable, string[]>, constraints: Constraint[]): boolean
+        {
+            let GACQueue = [...constraints]
+            while(GACQueue.length > 0)
+            {
+                let constraint = GACQueue.shift()
+                for(let i = 0; i < constraint.scope.length; i++)
+                {
+                    let variable = constraint.scope[i]
+                    for(let j = 0; j < variable.curr_domain.length; j++)
+                    {
+                        let val = variable.domain[j]
+                        if(variable.valueInCurrDom(val))
+                        {
+                            if(!constraint.hasSupport(variable, val))
+                            {
+                                variable.pruneValue(val)
+                                if(!prunes.has(variable))
+                                {
+                                    prunes.set(variable, [])
+                                }
+                                prunes.get(variable).push(val)
+                                if(variable.currDomSize() === 0)
+                                {
+                                    return false
+                                }
+                                else
+                                {
+                                    constraints.filter(c => c.scope.includes(variable) && !GACQueue.includes(c)).forEach(c => GACQueue.push(c))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true
+        }
+
+        return GACRecurse(this)
     }
 }
