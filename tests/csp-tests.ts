@@ -18,9 +18,11 @@ const tests = [
     testBTSolve,
     testBTSolveMultipleConstraints,
     testBTSolveUnsolvable,
+    testBTSolveAllAssigned,
     testGACSolve,
     testGACSolveMultipleConstraints,
-    testGACSolveUnsolvable
+    testGACSolveUnsolvable,
+    testGACSolveAllAssigned
 ]
 
 function testCSPCreation(): boolean 
@@ -190,6 +192,26 @@ function testBTSolveUnsolvable(): boolean
     return !csp.backtrackSolve()
 }
 
+function testBTSolveAllAssigned(): boolean
+{
+    let name = "CSP 1"
+    let domain = ['1', '2', '3']
+    let v1 = new Variable("V1", domain)
+    let v2 = new Variable("V2", domain)
+    let v3 = new Variable("V3", domain)
+    v1.assignValue('1')
+    v2.assignValue('2')
+    v3.assignValue('3')
+    let scope = [v1, v2, v3]
+    let constraintFunc = (vars: Variable[]) => {
+        return vars[0].assigned_val === '3' && vars[1].assigned_val === '2' && vars[2].assigned_val === '1'
+    }
+    let c = new Constraint("C1", scope, constraintFunc)
+    let constraints = [c]
+    let csp = new TestCSP(name, constraints)
+    return !csp.backtrackSolve()
+}
+
 function testGACSolve(): boolean
 {
     let name = "CSP 1"
@@ -240,6 +262,26 @@ function testGACSolveUnsolvable(): boolean
     let v1 = new Variable("V1", domain)
     let v2 = new Variable("V2", domain)
     let v3 = new Variable("V3", domain)
+    v3.assignValue('3')
+    let scope = [v1, v2, v3]
+    let constraintFunc = (vars: Variable[]) => {
+        return vars[0].assigned_val === '3' && vars[1].assigned_val === '2' && vars[2].assigned_val === '1'
+    }
+    let c = new Constraint("C1", scope, constraintFunc)
+    let constraints = [c]
+    let csp = new TestCSP(name, constraints)
+    return !csp.GACSolve()
+}
+
+function testGACSolveAllAssigned(): boolean
+{
+    let name = "CSP 1"
+    let domain = ['1', '2', '3']
+    let v1 = new Variable("V1", domain)
+    let v2 = new Variable("V2", domain)
+    let v3 = new Variable("V3", domain)
+    v1.assignValue('1')
+    v2.assignValue('2')
     v3.assignValue('3')
     let scope = [v1, v2, v3]
     let constraintFunc = (vars: Variable[]) => {

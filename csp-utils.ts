@@ -376,7 +376,7 @@ export class CSP
         {
             if(csp.allVarsAssigned())
             {
-                return true
+                return !csp.constraints.some((c) => !c.isSatisfied())
             }
 
             let v = csp.pickVariable()
@@ -427,7 +427,7 @@ export class CSP
         {
             if(csp.allVarsAssigned())
             {
-                return true
+                return !csp.constraints.some((c) => !c.isSatisfied())
             }
 
             let v = csp.pickVariable()
