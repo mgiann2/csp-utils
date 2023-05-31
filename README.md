@@ -1,6 +1,6 @@
 # csp-utils
 ## About
-V 1.0
+V 1.1
 
 csp-utils is a simple typescript library that can be used to solve constraint satisfaction problems.
 
@@ -22,3 +22,6 @@ The **CSP** class has a **name** and **constraints**. The **name** is used to id
 
 ### Solving a CSP
 To solve a **CSP**, call either the **backtrackSolve** or **GACSolve** methods on the **CSP** class. The **GACSolve** method should offer substantial performance benefits over **backtrackSolve** and should be used in most cases. After calling either of these methods, if false is returned then the **CSP** is unsolvable, otherwise a solution has been found. The solution can be accessed by looping though the **assigned_val** property of each of the variables.  
+
+## Bug Fixes
+- Fixed issue where if all variables in a CSP are assigned before solving, then the backtrackSolve and GACSolve methods would return true even if assignments cause a constraint to be unsatisfied.
